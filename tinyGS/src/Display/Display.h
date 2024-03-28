@@ -17,10 +17,14 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "SSD1306.h"                         // https://github.com/ThingPulse/esp8266-oled-ssd1306
-#include "OLEDDisplayUi.h"                   // https://github.com/ThingPulse/esp8266-oled-ssd1306
 #include "../ConfigManager/ConfigManager.h"
 #include "../Status.h"
+#ifdef HELTEC_TRACKER_V1_1
+#include "Display_TFT.h"
+#include <SPI.h>
+#endif
+#include "SSD1306.h"                         // https://github.com/ThingPulse/esp8266-oled-ssd1306
+#include "OLEDDisplayUi.h"                   // https://github.com/ThingPulse/esp8266-oled-ssd1306
 
 void displayInit();
 void displayShowConnected();
@@ -32,5 +36,3 @@ void displayTurnOff();
 void displayNextFrame();
 
 extern Status status;
-
-  

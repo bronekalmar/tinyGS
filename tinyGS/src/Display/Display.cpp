@@ -21,7 +21,11 @@
 #include "graphics.h"
 #include "../ConfigManager/ConfigManager.h"
 
+#ifdef HELTEC_TRACKER_V1_1
+TFTDisplay* display;
+#else
 SSD1306* display;
+#endif
 OLEDDisplayUi* ui = NULL;
 
 void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state);
@@ -53,8 +57,13 @@ void displayInit()
    if (!ConfigManager::getInstance().getBoardConfig(board))
     return;
   
-  display = new SSD1306(board.OLED__address, board.OLED__SDA, board.OLED__SCL);
 
+  #ifdef HELTEC_TRACKER_V1_1
+  display = new TFTDisplay(board.OLED__address, -1, -1);
+  Serial.println(" -- INIT DISPLAY AS TFTDisplay");
+  #else
+  display = new SSD1306(board.OLED__address, board.OLED__SDA, board.OLED__SCL);
+  #endif
   ui = new OLEDDisplayUi(display);
   ui->setTargetFPS(60);
   ui->setActiveSymbol(activeSymbol);
@@ -65,20 +74,11 @@ void displayInit()
   ui->setFrames(frames, frameCount);
   ui->setOverlays(overlays, overlaysCount);
 
-  #if CONFIG_IDF_TARGET_ESP32S3                                      // Heltec Lora 32 V3 patch to enable Vext that power OLED
-  if (ConfigManager::getInstance().getBoard()== HELTEC_LORA32_V3 ) { 
-      pinMode (36, OUTPUT); 
-      digitalWrite(36, LOW);
-      }
-  #endif
-
   if (board.OLED__RST != UNUSED) {
-    if (!((strcmp(ESP.getChipModel(), "ESP32-PICO-D4") == 0) && (board.OLED__RST == 16)))  {
-        pinMode(board.OLED__RST, OUTPUT);
-        digitalWrite(board.OLED__RST, LOW);
-        delay(50);
-        digitalWrite(board.OLED__RST, HIGH);
-      }
+    pinMode(board.OLED__RST, OUTPUT);
+    digitalWrite(board.OLED__RST, LOW);
+    delay(50);
+    digitalWrite(board.OLED__RST, HIGH);
   }
 
   /* ui init() also initialises the underlying display */
